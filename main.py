@@ -13,4 +13,5 @@ data= data.drop(['Events','Date' , 'SeaLevelPressureHighInches','SeaLevelPressur
 data=data.replace('T',0.0)
 data=data.replace('-',0.0)
 
+#saving data
 data.to_csv('austin_final.csv')
