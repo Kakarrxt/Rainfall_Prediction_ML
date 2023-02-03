@@ -1,5 +1,4 @@
 #Rainfall Prediction using Random Forest
-#Location of data used for this => Albury
 
 import pandas as pd
 import matplotlib.pyplot as plt
