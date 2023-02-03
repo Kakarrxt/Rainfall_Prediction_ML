@@ -63,7 +63,33 @@ IQR = Q3 - Q1
 MiceImputed = MiceImputed[~((MiceImputed < (Q1 - 1.5 * IQR)) |(MiceImputed > (Q3 + 1.5 * IQR))).any(axis=1)]
 MiceImputed.shape
 
-#Training Rainfall Prediction Model with Different Models
+
+
+
+# Removing outliers from the dataset
+MiceImputed = MiceImputed[~((MiceImputed < (Q1 - 1.5 * IQR)) |(MiceImputed > (Q3 + 1.5 * IQR))).any(axis=1)]
+MiceImputed.shape
+
+
+# Standardizing data
+from sklearn import preprocessing
+r_scaler = preprocessing.MinMaxScaler()
+r_scaler.fit(MiceImputed)
+modified_data = pd.DataFrame(r_scaler.transform(MiceImputed), index=MiceImputed.index, columns=MiceImputed.columns)
+
+# Feature Importance using Filter Method (Chi-Square)
+from sklearn.feature_selection import SelectKBest, chi2
+X = modified_data.loc[:,modified_data.columns!='RainTomorrow']
+y = modified_data[['RainTomorrow']]
+selector = SelectKBest(chi2, k=10)
+selector.fit(X, y)
+X_new = selector.transform(X)
+
+
+
+
+
+#Training Rainfall Prediction Model with Random Forest
 
 
 features = MiceImputed[['Location', 'MinTemp', 'MaxTemp', 'Rainfall', 'Evaporation', 'Sunshine', 'WindGustDir', 
@@ -72,9 +98,9 @@ features = MiceImputed[['Location', 'MinTemp', 'MaxTemp', 'Rainfall', 'Evaporati
                        'RainToday']]
 target = MiceImputed['RainTomorrow']
 
-# Split into test and train
+# Split into test and train (85% for training 15% for testing)
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.25, random_state=12345)
+X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.15, random_state=12345)
 
 # Normalize Features
 from sklearn.preprocessing import StandardScaler
@@ -116,6 +142,8 @@ def run_model(model, X_train, y_train, X_test, y_test, verbose=True):
     return model, accuracy, roc_auc, coh_kap, time_taken
 
 
+
+
 #Training using Random Forest
 from sklearn.ensemble import RandomForestClassifier
 
@@ -128,6 +156,8 @@ params_rf = {'max_depth': 16,
 model_rf = RandomForestClassifier(**params_rf)
 model_rf, accuracy_rf, roc_auc_rf, coh_kap_rf, tt_rf = run_model(model_rf, X_train, y_train, X_test, y_test)
 
+#Accuracy= 0.9555649597968684
+#95.5%
 
 
 
@@ -153,6 +183,69 @@ data = {
         'Temp9am': [16.3], 
         'Temp3pm': [25.5],
         'RainToday':[0]}
+input = pd.DataFrame(data)
+
+
+# Make the prediction
+prediction = model_rf.predict_proba(input)[0,1]
+
+print("prediction= {}".format(prediction))
+
+#gives probability => 0.29894736842105263 
+
+if prediction<(0.25):
+    print("No rain is expected tomorrow")
+else:
+    print("Rain is expected tomorrow") 
+
+
+
+
+#Taking User Input
+
+min_temp = float(input("Enter the minimum temperature: "))
+max_temp = float(input("Enter the maximum temperature: "))
+Rainfall = float(input("Enter the Rainfall: "))
+evaporation = float(input("Enter the evaporation: "))
+sunshine = float(input("Enter the sunshine: "))
+wind_gust_dir = input("Enter the wind gust direction: ")
+wind_gust_speed = float(input("Enter the wind gust speed: "))
+wind_dir_9am = input("Enter the wind direction at 9am: ")
+wind_dir_3pm = input("Enter the wind direction at 3pm: ")
+wind_speed_9am = float(input("Enter the wind speed at 9am: "))
+wind_speed_3pm = float(input("Enter the wind speed at 3pm: "))
+humidity_9am = float(input("Enter the humidity at 9am: "))
+humidity_3pm = float(input("Enter the humidity at 3pm: "))
+pressure_9am = float(input("Enter the pressure at 9am: "))
+pressure_3pm = float(input("Enter the pressure at 3pm: "))
+cloud_9am = float(input("Enter the cloudiness at 9am: "))
+cloud_3pm = float(input("Enter the cloudiness at 3pm: "))
+temp_9am = float(input("Enter the temperature at 9am: "))
+temp_3pm = float(input("Enter the temperature at 3pm: "))
+RainToday = float(input("Enter the Rain today: "))
+
+# Convert the user input into a dataframe
+data = {'MinTemp': [min_temp], 
+        'MaxTemp': [max_temp], 
+        'Rainfall': [Rainfall],
+        'Evaporation': [evaporation], 
+        'Sunshine': [sunshine], 
+        'WindGustDir': [wind_gust_dir],
+        'WindGustSpeed': [wind_gust_speed], 
+        'WindDir9am': [wind_dir_9am], 
+        'WindDir3pm': [wind_dir_3pm], 
+        'WindSpeed9am': [wind_speed_9am], 
+        'WindSpeed3pm': [wind_speed_3pm], 
+        'Humidity9am': [humidity_9am], 
+        'Humidity3pm': [humidity_3pm], 
+        'Pressure9am': [pressure_9am], 
+        'Pressure3pm': [pressure_3pm], 
+        'Cloud9am': [cloud_9am], 
+        'Cloud3pm': [cloud_3pm], 
+        'Temp9am': [temp_9am], 
+        'Temp3pm': [temp_3pm],
+        'RainToday': [RainToday]}
+
 user_input = pd.DataFrame(data)
 
 
@@ -161,8 +254,9 @@ prediction = model_rf.predict_proba(user_input)[0,1]
 
 print("prediction= {}".format(prediction))
 
+#gives probability => 0.29894736842105263 
 
-if prediction == 0:
+if prediction<(0.25):
     print("No rain is expected tomorrow")
 else:
     print("Rain is expected tomorrow") 
