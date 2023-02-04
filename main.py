@@ -85,9 +85,6 @@ selector.fit(X, y)
 X_new = selector.transform(X)
 
 
-
-
-
 #Training Rainfall Prediction Model with Random Forest
 
 
@@ -107,14 +104,6 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.fit_transform(X_test)
 
-def plot_roc_cur(fper, tper):  
-    plt.plot(fper, tper, color='orange', label='ROC')
-    plt.plot([0, 1], [0, 1], color='darkblue', linestyle='--')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic (ROC) Curve')
-    plt.legend()
-    plt.show()
 
 import time
 from sklearn.metrics import accuracy_score, roc_auc_score, cohen_kappa_score, plot_confusion_matrix, roc_curve, classification_report
@@ -140,9 +129,6 @@ def run_model(model, X_train, y_train, X_test, y_test, verbose=True):
     
     return model, accuracy, roc_auc, coh_kap, time_taken
 
-
-
-
 #Training using Random Forest
 from sklearn.ensemble import RandomForestClassifier
 
@@ -157,7 +143,6 @@ model_rf, accuracy_rf, roc_auc_rf, coh_kap_rf, tt_rf = run_model(model_rf, X_tra
 
 #Accuracy= 0.9555649597968684
 #95.5%
-
 
 
  #Testing Random Data using the existing Data
@@ -190,7 +175,7 @@ prediction = model_rf.predict_proba(input)[0,1]
 
 print("prediction= {}".format(prediction))
 
-#gives probability => 0.29894736842105263 
+#gives probability => 0.39894736842105263 
 
 if prediction<(0.25):
     print("No rain is expected tomorrow")
@@ -252,8 +237,6 @@ user_input = pd.DataFrame(data)
 prediction = model_rf.predict_proba(user_input)[0,1]
 
 print("prediction= {}".format(prediction))
-
-#gives probability => 0.29894736842105263 
 
 if prediction<(0.25):
     print("No rain is expected tomorrow")

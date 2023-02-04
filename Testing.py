@@ -61,9 +61,9 @@ MiceImputed.shape
 
 # Correlation Heatmap
 import numpy as np
-'''
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 corr = MiceImputed.corr()
 mask = np.triu(np.ones_like(corr, dtype=np.bool))
 f, ax = plt.subplots(figsize=(20, 20))
@@ -73,7 +73,6 @@ sns.heatmap(corr, mask=mask, cmap=cmap, vmax=None, center=0,square=True, annot=T
 
 sns.pairplot( data=MiceImputed, vars=('MaxTemp','MinTemp','Pressure9am'), hue='RainTomorrow' )
 plt.show()
-
 
 # Standardizing data
 from sklearn import preprocessing
@@ -103,10 +102,8 @@ support = selector.get_support()
 features = X.loc[:,support].columns.tolist()
 print(features)
 print(rf(n_estimators=100, random_state=0).fit(X,y).feature_importances_)
-'''
 
 #Training Rainfall Prediction Model with Different Models
-
 
 features = MiceImputed[['Location', 'MinTemp', 'MaxTemp', 'Rainfall', 'Evaporation', 'Sunshine', 'WindGustDir', 
                        'WindGustSpeed', 'WindDir9am', 'WindDir3pm', 'WindSpeed9am', 'WindSpeed3pm', 'Humidity9am', 
